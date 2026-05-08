@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI at Domo — Getting Started</title>
+  <meta name="description" content="A practical guide to using Claude at Domo. Complete the checklist, then dig into the reference sections.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cpath fill='%2399CCEE' d='M280.2 471c39.4 0 71.3-31.9 71.3-71.3s-31.9-71.3-71.3-71.3-71.3 31.9-71.3 71.3 31.9 71.3 71.3 71.3z'/%3E%3Cpath fill='%2399CCEE' d='M703.6 471c39.4 0 71.3-31.9 71.3-71.3s-31.9-71.3-71.3-71.3-71.3 31.9-71.3 71.3 31.9 71.3 71.3 71.3z'/%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --domo-blue: #99CCEE;
+      --domo-blue-deep: #7BB8E0;
+      --accent-orange: #FF9922;
+      --accent-orange-hover: #E8891F;
+      --accent-purple: #776CB0;
+      --accent-pink: #C179BD;
+      --accent-mint: #ADD4C1;
+      --neutral-50: #F1F6FA;
+      --neutral-100: #DCE4EA;
+      --neutral-200: #B7C1CB;
+      --neutral-600: #68737F;
+      --neutral-900: #3F454D;
+      --font-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --shadow-sm: 0 1px 3px rgba(63,69,77,0.08), 0 1px 2px rgba(63,69,77,0.06);
+      --shadow-md: 0 4px 12px rgba(63,69,77,0.1), 0 2px 4px rgba(63,69,77,0.06);
+      --shadow-lg: 0 8px 20px rgba(63,69,77,0.08), 0 4px 8px rgba(63,69,77,0.04);
+      --shadow-blue-glow: 0 4px 20px rgba(153, 204, 238, 0.35);
+      --shadow-orange-glow: 0 4px 20px rgba(255, 153, 34, 0.3);
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --ease-smooth: cubic-bezier(0.83, 0, 0.17, 1);
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-primary);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--neutral-900);
+      background: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* NAV */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: saturate(180%) blur(8px);
+      -webkit-backdrop-filter: saturate(180%) blur(8px);
+      border-bottom: 1px solid var(--neutral-100);
+    }
+    .nav-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-brand svg { width: 36px; height: 36px; flex-shrink: 0; }
+    .nav-brand-text { font-weight: 700; font-size: 15px; color: var(--neutral-900); letter-spacing: -0.005em; }
+    .nav-brand-text span { color: var(--neutral-600); font-weight: 400; }
+    .nav-progress { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--neutral-600); font-weight: 600; }
+    .nav-progress-track { width: 110px; height: 6px; background: var(--neutral-100); border-radius: 999px; overflow: hidden; }
+    .nav-progress-fill { height: 100%; width: 0%; background: var(--accent-orange); border-radius: 999px; transition: width 0.4s var(--ease-smooth); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      background: linear-gradient(180deg, #99CCEE 0%, #7BB8E0 100%);
+      color: white;
+      padding: 88px 28px 92px;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='4' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      font-weight: 600; font-size: 13px; letter-spacing: 0.02em;
+      margin-bottom: 22px; color: white;
+    }
+    .hero-eyebrow .dot { width: 8px; height: 8px; background: white; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+    .hero h1 {
+      font-weight: 800;
+      font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      color: white;
+    }
+    .hero p.lead {
+      font-weight: 300;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      line-height: 1.5;
+      max-width: 720px;
+      color: rgba(255,255,255,0.92);
+      margin-bottom: 32px;
+    }
+    .hero-cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 26px;
+      background: var(--accent-orange); color: white;
+      border: none; border-radius: var(--radius-md);
+      font-family: var(--font-primary); font-weight: 700; font-size: 15px;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.3s var(--ease-smooth);
+      box-shadow: 0 2px 8px rgba(255,153,34,0.25);
+    }
+    .btn-primary:hover {
+      background: var(--accent-orange-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-orange-glow);
+    }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 26px;
+      background: rgba(255,255,255,0.14); color: white;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: var(--radius-md);
+      font-family: var(--font-primary); font-weight: 600; font-size: 15px;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.3s var(--ease-smooth);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.22); border-color: white; }
+
+    main { max-width: 1080px; margin: 0 auto; padding: 64px 28px 96px; }
+    section + section { margin-top: 64px; }
+
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--accent-orange);
+      margin-bottom: 8px;
+    }
+    h2.section-title {
+      font-weight: 700;
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      line-height: 1.2; letter-spacing: -0.015em;
+      color: var(--neutral-900); margin-bottom: 8px;
+    }
+    p.section-sub {
+      font-weight: 400; font-size: 1.0625rem;
+      color: var(--neutral-600);
+      max-width: 720px; margin-bottom: 32px;
+    }
+
+    /* CHECKLIST */
+    .checklist { display: flex; flex-direction: column; gap: 20px; }
+    .check-item {
+      background: white;
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s var(--ease-smooth);
+      overflow: hidden;
+    }
+    .check-item:hover { box-shadow: var(--shadow-lg); border-color: rgba(153,204,238,0.5); }
+    .check-item.is-done {
+      background: linear-gradient(180deg, rgba(173,212,193,0.18) 0%, rgba(173,212,193,0.06) 100%);
+      border-color: rgba(173,212,193,0.6);
+    }
+    .check-head { display: flex; align-items: flex-start; gap: 16px; padding: 22px 26px; cursor: pointer; user-select: none; }
+    .check-num {
+      flex-shrink: 0; width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--neutral-50);
+      color: var(--domo-blue);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px;
+      border: 2px solid var(--domo-blue);
+      transition: all 0.3s var(--ease-smooth);
+    }
+    .check-item.is-done .check-num { background: var(--domo-blue); color: white; }
+    .check-item.is-done .check-num::before { content: '✓'; font-size: 18px; font-weight: 700; }
+    .check-item.is-done .check-num-text { display: none; }
+    .check-title-row { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .check-title { font-weight: 700; font-size: 1.125rem; color: var(--neutral-900); letter-spacing: -0.005em; flex: 1; }
+    .check-toggle {
+      flex-shrink: 0; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-200);
+      transition: transform 0.3s var(--ease-smooth), color 0.3s var(--ease-smooth);
+    }
+    .check-item.is-open .check-toggle { transform: rotate(180deg); color: var(--domo-blue); }
+    .check-mark-btn {
+      flex-shrink: 0; padding: 6px 12px;
+      background: white;
+      border: 1.5px solid var(--neutral-100);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-primary);
+      font-weight: 600; font-size: 12px;
+      color: var(--neutral-600);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+      white-space: nowrap;
+    }
+    .check-mark-btn:hover { border-color: var(--domo-blue); color: var(--domo-blue); }
+    .check-item.is-done .check-mark-btn { background: var(--domo-blue); color: white; border-color: var(--domo-blue); }
+    .check-body { max-height: 0; overflow: hidden; transition: max-height 0.4s var(--ease-smooth); }
+    .check-item.is-open .check-body { max-height: 4000px; }
+    .check-body-inner {
+      padding: 4px 26px 28px 78px;
+      color: var(--neutral-600);
+      font-size: 0.9375rem; line-height: 1.7;
+    }
+    .check-body-inner ol, .check-body-inner ul { padding-left: 22px; margin: 8px 0 14px; }
+    .check-body-inner ol li, .check-body-inner ul li { margin-bottom: 8px; }
+    .check-body-inner p { margin-bottom: 12px; }
+    .check-body-inner strong { color: var(--neutral-900); font-weight: 700; }
+    .check-body-inner em { color: var(--neutral-900); font-style: normal; font-weight: 600; }
+    .check-body-inner h4 {
+      font-weight: 700; font-size: 0.9375rem;
+      color: var(--neutral-900);
+      margin: 18px 0 6px; letter-spacing: 0.005em;
+    }
+    .check-body-inner h4:first-child { margin-top: 4px; }
+
+    .prompt-quote {
+      border-left: 3px solid var(--domo-blue);
+      background: var(--neutral-50);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+      font-style: italic;
+      color: var(--neutral-900);
+      font-size: 0.9375rem; line-height: 1.55;
+    }
+    .prompt-quote::before { content: '“'; color: var(--domo-blue); font-style: normal; font-weight: 700; margin-right: 4px; }
+    .prompt-quote::after { content: '”'; color: var(--domo-blue); font-style: normal; font-weight: 700; }
+
+    code.inline {
+      font-family: var(--font-mono); font-size: 0.85em;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--neutral-100);
+    }
+
+    .code-block {
+      position: relative;
+      margin: 14px 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--neutral-100);
+      background: #2A2F36;
+      box-shadow: var(--shadow-sm);
+    }
+    .code-block-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px;
+      background: #232830;
+      border-bottom: 1px solid #1B1F25;
+    }
+    .code-block-label {
+      font-family: var(--font-mono); font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-primary); font-size: 11px; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+      letter-spacing: 0.02em;
+    }
+    .copy-btn:hover { background: var(--accent-orange); color: white; border-color: var(--accent-orange); }
+    .copy-btn.copied { background: var(--accent-mint); color: var(--neutral-900); border-color: var(--accent-mint); }
+    .copy-btn .icon-copy,
+    .copy-btn .icon-check { width: 12px; height: 12px; flex-shrink: 0; }
+    .copy-btn .icon-check { display: none; }
+    .copy-btn.copied .icon-copy { display: none; }
+    .copy-btn.copied .icon-check { display: inline-block; }
+    .copy-btn[data-state="copied"] .copy-btn-label { display: none; }
+    .copy-btn[data-state="copied"] .copy-btn-label-copied { display: inline; }
+    .copy-btn-label-copied { display: none; }
+
+    .code-block pre {
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 13px; line-height: 1.55;
+      color: #EEF1F4;
+      overflow-x: auto;
+    }
+    .code-block .tk-key { color: #99CCEE; }
+    .code-block .tk-str { color: #ADD4C1; }
+    .code-block .tk-pun { color: #B7C1CB; }
+
+    .test-callout {
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: rgba(153,204,238,0.12);
+      border: 1px solid rgba(153,204,238,0.4);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      color: var(--neutral-900);
+    }
+
+    .bonus-card {
+      margin-top: 24px;
+      padding: 24px 28px;
+      background: linear-gradient(135deg, rgba(255,153,34,0.08) 0%, rgba(193,121,189,0.08) 100%);
+      border: 1px dashed rgba(255,153,34,0.4);
+      border-radius: var(--radius-lg);
+    }
+    .bonus-card .bonus-tag {
+      display: inline-block;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: white; background: var(--accent-orange);
+      padding: 3px 10px; border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+    .bonus-card p { font-size: 0.9375rem; color: var(--neutral-900); line-height: 1.6; }
+
+    .stuck {
+      margin-top: 48px;
+      padding: 28px 32px;
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-100);
+      border-left: 4px solid var(--domo-blue);
+      border-radius: var(--radius-lg);
+    }
+    .stuck h3 { font-weight: 700; font-size: 1.125rem; color: var(--neutral-900); margin-bottom: 8px; }
+    .stuck p { color: var(--neutral-600); font-size: 0.9375rem; }
+    .stuck p + p { margin-top: 8px; }
+    .stuck .placeholder {
+      display: inline-block;
+      padding: 4px 10px;
+      background: white;
+      border: 1px dashed var(--neutral-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem; color: var(--neutral-600); font-style: italic;
+    }
+
+    /* REFERENCE */
+    .reference-grid { display: flex; flex-direction: column; gap: 12px; }
+    details.ref {
+      background: white;
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: all 0.3s var(--ease-smooth);
+    }
+    details.ref[open] { border-color: rgba(153,204,238,0.6); box-shadow: var(--shadow-md); }
+    details.ref summary {
+      padding: 18px 24px;
+      cursor: pointer;
+      list-style: none;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      font-weight: 700; font-size: 1.0625rem;
+      color: var(--neutral-900);
+      user-select: none;
+    }
+    details.ref summary::-webkit-details-marker { display: none; }
+    details.ref summary::after {
+      content: '';
+      flex-shrink: 0; width: 18px; height: 18px;
+      background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2368737F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      transition: transform 0.3s var(--ease-smooth);
+    }
+    details.ref[open] summary::after { transform: rotate(180deg); }
+    details.ref[open] summary { background: var(--neutral-50); border-bottom: 1px solid var(--neutral-100); }
+    .ref-body {
+      padding: 22px 28px 28px;
+      color: var(--neutral-600);
+      font-size: 0.9375rem; line-height: 1.7;
+    }
+    .ref-body h3 {
+      font-weight: 700; font-size: 1rem;
+      color: var(--neutral-900);
+      margin: 20px 0 6px;
+    }
+    .ref-body h3:first-child { margin-top: 0; }
+    .ref-body p { margin-bottom: 12px; }
+    .ref-body p strong { color: var(--neutral-900); font-weight: 700; }
+    .ref-body ul, .ref-body ol { padding-left: 22px; margin: 8px 0 14px; }
+    .ref-body li { margin-bottom: 6px; }
+
+    .tip-box {
+      margin: 14px 0 4px;
+      padding: 12px 16px;
+      background: rgba(153,204,238,0.16);
+      border-left: 3px solid var(--domo-blue);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 0.9375rem; color: var(--neutral-900);
+    }
+
+    .product-table {
+      width: 100%;
+      border-collapse: separate; border-spacing: 0;
+      margin: 8px 0 16px;
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .product-table th, .product-table td { padding: 12px 16px; text-align: left; font-size: 0.9375rem; }
+    .product-table th { background: var(--neutral-50); color: var(--neutral-900); font-weight: 700; border-bottom: 1px solid var(--neutral-100); }
+    .product-table td { border-bottom: 1px solid var(--neutral-100); color: var(--neutral-600); }
+    .product-table tr:last-child td { border-bottom: none; }
+    .product-table td:first-child { font-weight: 700; color: var(--neutral-900); white-space: nowrap; }
+
+    .privacy-list {
+      background: rgba(255,153,34,0.06);
+      border: 1px solid rgba(255,153,34,0.2);
+      border-radius: var(--radius-md);
+      padding: 14px 18px 14px 38px;
+      margin: 12px 0;
+    }
+    .privacy-list li::marker { color: var(--accent-orange); font-weight: 700; }
+
+    .resources {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .resource-card {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 18px 20px;
+      background: white;
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none; color: inherit;
+      transition: all 0.3s var(--ease-smooth);
+    }
+    .resource-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(153,204,238,0.5);
+    }
+    .resource-card .res-name {
+      font-weight: 700; color: var(--domo-blue);
+      font-size: 0.9375rem; font-family: var(--font-mono);
+      letter-spacing: -0.005em; word-break: break-all;
+    }
+    .resource-card .res-desc { font-size: 0.875rem; color: var(--neutral-600); line-height: 1.5; }
+
+    footer {
+      background: var(--neutral-900);
+      color: rgba(255,255,255,0.75);
+      padding: 48px 28px 36px;
+      margin-top: 80px;
+    }
+    .footer-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: space-between;
+      gap: 18px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 14px; }
+    .footer-brand svg { width: 40px; height: 40px; }
+    .footer-brand-text { font-weight: 700; color: white; font-size: 14px; letter-spacing: 0.005em; }
+    .footer-brand-text span {
+      display: block; font-weight: 400;
+      color: rgba(255,255,255,0.55);
+      font-size: 12px; margin-top: 2px;
+    }
+    .footer-meta { font-size: 13px; color: rgba(255,255,255,0.55); }
+    .footer-meta a { color: var(--domo-blue); text-decoration: none; }
+    .footer-meta a:hover { text-decoration: underline; }
+
+    @keyframes domoFadeInUp {
+      from { opacity: 0; transform: translateY(1.2rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stagger > * { opacity: 0; animation: domoFadeInUp 0.55s var(--ease-out-expo) forwards; }
+    .stagger > *:nth-child(1) { animation-delay: 0.04s; }
+    .stagger > *:nth-child(2) { animation-delay: 0.10s; }
+    .stagger > *:nth-child(3) { animation-delay: 0.16s; }
+    .stagger > *:nth-child(4) { animation-delay: 0.22s; }
+    .stagger > *:nth-child(5) { animation-delay: 0.28s; }
+    .stagger > *:nth-child(6) { animation-delay: 0.34s; }
+
+    *:focus-visible {
+      outline: 2px solid var(--domo-blue);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    .check-head:focus-visible { outline-offset: -2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-inner { padding: 12px 18px; }
+      .nav-brand-text { font-size: 14px; }
+      .nav-progress span { display: none; }
+      .nav-progress-track { width: 80px; }
+      .hero { padding: 60px 22px 64px; }
+      main { padding: 40px 22px 64px; }
+      section + section { margin-top: 48px; }
+      .check-head { padding: 18px 20px; gap: 12px; }
+      .check-num { width: 30px; height: 30px; font-size: 13px; }
+      .check-title { font-size: 1rem; }
+      .check-mark-btn { padding: 5px 9px; font-size: 11px; }
+      .check-body-inner { padding: 4px 20px 22px 62px; }
+      .stuck { padding: 22px 22px; }
+      details.ref summary { padding: 16px 20px; font-size: 1rem; }
+      .ref-body { padding: 18px 22px 22px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 520px) {
+      .check-body-inner { padding-left: 22px; }
+      .check-mark-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top" aria-label="AI at Domo — Getting Started">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" aria-hidden="true">
+        <path fill="#99CCEE" d="M150.5,328.6c12.4,13.8,21.2,30.9,25,49.8,9.9-48.8,53-85.5,104.7-85.5s94.8,36.8,104.7,85.6v-85.6l106.8,106.8,107.1-106.8v85.6c9.9-48.8,53-85.6,104.7-85.6s79.2,24.8,96.4,60.7V0H0v292.9h70.8c31.7,0,60.1,13.8,79.7,35.7Z"/>
+        <path fill="#99CCEE" d="M703.6,506.6c-51.7,0-94.8-36.8-104.7-85.6v85.6h-36v-127.8l-71.1,71.4-71.4-71.4v127.8h-35.4v-85.6c-9.9,48.8-53,85.6-104.7,85.6s-94.8-36.7-104.7-85.5c-3.8,18.9-12.6,36-25,49.8-19.6,21.9-48,35.7-79.7,35.7H0v293.4h800v-354.2c-17.2,35.9-53.9,60.7-96.4,60.7h0Z"/>
+        <path fill="#99CCEE" d="M280.2,471c39.4,0,71.3-31.9,71.3-71.3s-31.9-71.3-71.3-71.3-71.3,31.9-71.3,71.3,31.9,71.3,71.3,71.3Z"/>
+        <path fill="#99CCEE" d="M142.1,399.7c0-37.8-29.4-68.7-66.6-71.1h-40.1v142.2h40.1c37.2-2.4,66.6-33.3,66.6-71.1h0Z"/>
+        <path fill="#99CCEE" d="M703.6,471c39.4,0,71.3-31.9,71.3-71.3s-31.9-71.3-71.3-71.3-71.3,31.9-71.3,71.3,31.9,71.3,71.3,71.3Z"/>
+      </svg>
+      <span class="nav-brand-text">AI at Domo <span>· Getting Started</span></span>
+    </a>
+    <div class="nav-progress" aria-live="polite">
+      <span id="progressLabel">0/4 complete</span>
+      <div class="nav-progress-track" aria-hidden="true">
+        <div class="nav-progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><span class="dot"></span>Practical guide for Domo employees</div>
+    <h1>AI at Domo: Getting Started</h1>
+    <p class="lead">A practical guide to using Claude at Domo. Complete the checklist below, then use the reference sections to go deeper.</p>
+    <div class="hero-cta-row">
+      <a class="btn-primary" href="#checklist">Start the checklist
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+      <a class="btn-secondary" href="#reference">Jump to reference</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="checklist" aria-labelledby="checklistTitle">
+    <div class="section-eyebrow">Checklist</div>
+    <h2 class="section-title" id="checklistTitle">Getting Started Checklist</h2>
+    <p class="section-sub">Work through these in order. Each one builds on the last. Reference sections below explain the concepts in more detail.</p>
+
+    <div class="checklist stagger">
+
+      <article class="check-item" data-step="1">
+        <div class="check-head" role="button" tabindex="0" aria-expanded="false">
+          <div class="check-num"><span class="check-num-text">1</span></div>
+          <div class="check-title-row">
+            <div class="check-title">Download Claude and introduce yourself</div>
+            <button class="check-mark-btn" type="button" data-mark>Mark done</button>
+            <span class="check-toggle" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+          </div>
+        </div>
+        <div class="check-body">
+          <div class="check-body-inner">
+            <ol>
+              <li>Go to <a href="https://claude.ai" target="_blank" rel="noopener"><strong>claude.ai</strong></a> and sign up with your work email, or download the Desktop app at <a href="https://claude.ai/download" target="_blank" rel="noopener"><strong>claude.ai/download</strong></a>.</li>
+              <li>Go to your account <strong>Settings</strong> and find <strong>Custom Instructions</strong> (or User Profile). Tell Claude your name, role, team, what you work on, and how you like to communicate.</li>
+              <li>Start a conversation and ask:
+                <div class="prompt-quote">What else would help you know about me to work more effectively together?</div>
+              </li>
+              <li>Ask Claude to save key context to memory:
+                <div class="prompt-quote">Save these to memory: [your key priorities or preferences]</div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </article>
+
+      <article class="check-item" data-step="2">
+        <div class="check-head" role="button" tabindex="0" aria-expanded="false">
+          <div class="check-num"><span class="check-num-text">2</span></div>
+          <div class="check-title-row">
+            <div class="check-title">Connect to Domo (Domo MCP)</div>
+            <button class="check-mark-btn" type="button" data-mark>Mark done</button>
+            <span class="check-toggle" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+          </div>
+        </div>
+        <div class="check-body">
+          <div class="check-body-inner">
+
+            <h4>First, get a Domo Developer Token</h4>
+            <ol>
+              <li>Log into <a href="https://domo.domo.com" target="_blank" rel="noopener">domo.domo.com</a>, click your name, and go to <strong>Admin</strong>.</li>
+              <li>Go to <strong>More → Developer → Access Tokens</strong>.</li>
+              <li>Click <strong>Generate Access Token</strong>, name it <em>Claude MCP</em>, and copy the token.</li>
+            </ol>
+
+            <h4>In Claude Cowork</h4>
+            <ol>
+              <li>Open the <strong>Developer panel</strong> and click <strong>Edit Config</strong>.</li>
+              <li>Copy everything you see and paste it into a Claude conversation.</li>
+              <li>Ask Claude to add the Domo MCP entry and return the complete updated config with a placeholder for your token. <strong>Do not share your token in the conversation.</strong></li>
+              <li>Paste the result back, replace the placeholder with your actual token, and save.</li>
+            </ol>
+
+            <h4>In Claude Code</h4>
+            <ol>
+              <li>Ask Claude:
+                <div class="prompt-quote">Help me set up Claude Code on my [Mac / Windows PC]. Walk me through the full installation.</div>
+              </li>
+              <li>Once running, create a <code class="inline">.mcp.json</code> file in your workspace folder with the config below.</li>
+              <li>Replace <code class="inline">YOUR_TOKEN_HERE</code> with your actual token.</li>
+            </ol>
+
+            <p style="margin-top:14px;"><strong>Config (for either Cowork or Claude Code):</strong></p>
+            <div class="code-block">
+              <div class="code-block-head">
+                <span class="code-block-label">.mcp.json</span>
+                <button class="copy-btn" type="button" data-copy>
+                  <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span class="copy-btn-label">Copy</span>
+                  <span class="copy-btn-label-copied">Copied</span>
+                </button>
+              </div>
+<pre id="mcpJson"><span class="tk-pun">{</span>
+  <span class="tk-key">"mcpServers"</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">"domo-mcp"</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+      <span class="tk-key">"type"</span><span class="tk-pun">:</span> <span class="tk-str">"http"</span><span class="tk-pun">,</span>
+      <span class="tk-key">"url"</span><span class="tk-pun">:</span> <span class="tk-str">"https://domo.domo.com/api/ai/v1/assistant/mcp/toolkits/DOMO_BASIC_MCP"</span><span class="tk-pun">,</span>
+      <span class="tk-key">"headers"</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+        <span class="tk-key">"X-DOMO-DEVELOPER-TOKEN"</span><span class="tk-pun">:</span> <span class="tk-str">"YOUR_TOKEN_HERE"</span>
+      <span class="tk-pun">}</span>
+    <span class="tk-pun">}</span>
+  <span class="tk-pun">}</span>
+<span class="tk-pun">}</span></pre>
+            </div>
+
+            <div class="test-callout">
+              <strong>Test it:</strong> Ask Claude to <em>"Search for a revenue dataset in Domo."</em> If it returns results, you're connected. Then try: <em>"Show me my top customers by ARR this quarter."</em>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="check-item" data-step="3">
+        <div class="check-head" role="button" tabindex="0" aria-expanded="false">
+          <div class="check-num"><span class="check-num-text">3</span></div>
+          <div class="check-title-row">
+            <div class="check-title">Build a Project</div>
+            <button class="check-mark-btn" type="button" data-mark>Mark done</button>
+            <span class="check-toggle" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+          </div>
+        </div>
+        <div class="check-body">
+          <div class="check-body-inner">
+            <ol>
+              <li>Find a document you want to be able to ask questions about: a contract, an agreement, a policy, a report.</li>
+              <li>In Claude Chat, go to <strong>Projects</strong> and create a new one.</li>
+              <li>Name it after the subject (e.g., <em>"Q1 Debt Agreement Review"</em>).</li>
+              <li>Upload the document and add a brief instruction:
+                <div class="prompt-quote">You are reviewing [document name] from the perspective of [your role]. Help me understand key terms, flag anything notable, and answer questions about what it means for Domo.</div>
+              </li>
+              <li>Ask your first question:
+                <div class="prompt-quote">Summarize the key terms and flag anything I should pay attention to.</div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </article>
+
+      <article class="check-item" data-step="4">
+        <div class="check-head" role="button" tabindex="0" aria-expanded="false">
+          <div class="check-num"><span class="check-num-text">4</span></div>
+          <div class="check-title-row">
+            <div class="check-title">Build a Skill</div>
+            <button class="check-mark-btn" type="button" data-mark>Mark done</button>
+            <span class="check-toggle" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+          </div>
+        </div>
+        <div class="check-body">
+          <div class="check-body-inner">
+            <ol>
+              <li>Identify a task you do regularly that takes time but follows a consistent pattern. Say:
+                <div class="prompt-quote">I want to build a Skill, an automated workflow I can trigger with a command. Here are tasks I do regularly: [list 3–5 things]. Help me pick the best candidate and sketch out what it should do.</div>
+              </li>
+              <li>Once you've chosen, ask Claude to draft it:
+                <div class="prompt-quote">Draft a SKILL.md file for [the task]. It should trigger when I say /[skill-name] and follow these steps: [what you described].</div>
+              </li>
+              <li>Save the file to <code class="inline">skills/[skill-name]/SKILL.md</code> in your workspace.</li>
+              <li>Trigger it and adjust the instructions until it runs the way you want.</li>
+              <li>Remember: if Claude does something useful in any conversation, say <em>"Make everything we've just done into a Skill"</em> and it will package it up for you.</li>
+            </ol>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="bonus-card">
+      <span class="bonus-tag">Bonus</span>
+      <p><strong>Want to go further?</strong> Ask Claude: <em>"What can I build with Claude Code and the Domo MCP?"</em> You can build native Domo apps, custom dashboards, and Procode apps using React and Domo's developer framework.</p>
+    </div>
+
+    <div class="stuck">
+      <h3>Where to go when stuck</h3>
+      <p>If something isn't working or you're not sure how to proceed, here's who to contact:</p>
+      <p><span class="placeholder">Placeholder — add Slack channel, office hours, or point of contact here</span></p>
+      <p>And remember: if you don't know how to do something in Claude, just ask Claude. Describe what you're trying to accomplish and it will walk you through it.</p>
+    </div>
+  </section>
+
+  <section id="reference" aria-labelledby="referenceTitle">
+    <div class="section-eyebrow">Reference</div>
+    <h2 class="section-title" id="referenceTitle">Go deeper</h2>
+    <p class="section-sub">Open any of the sections below to learn more about how Claude works, how to set yourself up, and what to build first.</p>
+
+    <div class="reference-grid">
+
+      <details class="ref">
+        <summary>The three ways to use Claude</summary>
+        <div class="ref-body">
+          <table class="product-table">
+            <thead>
+              <tr><th>Product</th><th>Best for</th><th>How you access it</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Claude Chat</td><td>Knowledge</td><td>claude.ai in browser, or Desktop app</td></tr>
+              <tr><td>Claude Cowork</td><td>Work</td><td>Cowork app or Desktop app</td></tr>
+              <tr><td>Claude Code</td><td>Build</td><td>Terminal / VS Code (CLI tool)</td></tr>
+            </tbody>
+          </table>
+          <p><strong>Claude Chat: Knowledge.</strong> Ask questions, analyze documents, and think through problems. You bring the content and Claude reasons through it with you. Good for research, drafts, summaries, and analysis.</p>
+          <p><strong>Claude Cowork: Work.</strong> Do actual work inside files and documents. Run Skills, schedule tasks, and build workflows that act on your behalf. Connect to Domo and other systems via Connectors so Claude can pull live data into your work.</p>
+          <p><strong>Claude Code: Build.</strong> Build tools, apps, and Skills for your team. Connect to Domo via MCP, develop native apps, and manage complex automated projects.</p>
+          <div class="tip-box"><strong>Tip:</strong> Start with Claude Chat. Move to Cowork when you're ready to do file-based work or run Skills. Come to Claude Code when you want to build something or connect to Domo data directly.</div>
+        </div>
+      </details>
+
+      <details class="ref">
+        <summary>Key concepts: Projects, Connectors, and Skills</summary>
+        <div class="ref-body">
+          <h3>What is a Project?</h3>
+          <p>A Project is a scoped workspace where you give Claude deep context on a specific subject, usually by uploading the relevant documents. Every conversation inside that Project starts with Claude already knowing those materials.</p>
+          <p><strong>Use a Project when</strong> you have a document you want to ask questions about repeatedly: a contract, agreement, policy, or report. You get precise, contextual answers without pasting the document each time.</p>
+
+          <h3>What is a Connector?</h3>
+          <p>A Connector (sometimes called an MCP Server) links Claude to an external system: Domo, Outlook, Gmail, SharePoint, Ramp, and others. Once connected, Claude can query live data, read emails, pull from calendar, and search documents without any manual copy-paste.</p>
+          <p><strong>Use a Connector when</strong> you want Claude to pull live data or interact with a system on your behalf. With the Domo Connector, you can ask <em>"What are my top 10 customers by ARR this quarter?"</em> and Claude queries Domo directly.</p>
+
+          <h3>What is a Skill?</h3>
+          <p>A Skill is a saved set of instructions that Claude follows when you trigger it. Think of it like a custom command. You say <code class="inline">/my-skill</code> (or a phrase you define), and Claude executes a specific workflow you've designed.</p>
+          <p><strong>Use a Skill when</strong> you do the same type of task on a recurring basis and want consistent, repeatable output every time. Skills can also be shared with your team.</p>
+          <div class="tip-box"><strong>Tip:</strong> You don't have to design Skills from scratch. If Claude does something useful in any conversation, say <em>"Make everything we've just done into a Skill"</em> and it will package the workflow for you.</div>
+        </div>
+      </details>
+
+      <details class="ref">
+        <summary>Setting yourself up: Custom Instructions, CLAUDE.md, and Memory</summary>
+        <div class="ref-body">
+          <h3>Custom Instructions (Chat and Desktop App)</h3>
+          <p>In Claude Chat and the Desktop app, go to your account <strong>Settings</strong> and look for <strong>Custom Instructions</strong> (also called User Profile or Preferences). This is where you describe yourself once and it applies to every conversation.</p>
+          <p>Tell Claude your name, role, team, what you work on, and how you like to communicate. Think of it as an onboarding document for a new colleague.</p>
+
+          <h3>CLAUDE.md (Claude Code only)</h3>
+          <p>If you're using Claude Code, create a file called <code class="inline">CLAUDE.md</code> in your workspace. Claude reads it at the start of every Code session. You don't write it manually — open Claude Code and say <em>"I want to create a CLAUDE.md file. Ask me questions about who I am, what I do, and how I like to work, then draft the file."</em></p>
+
+          <h3>Memory</h3>
+          <p>Memory lets Claude remember things across conversations. Unlike your Custom Instructions (a standing introduction), Memory builds up over time as you work.</p>
+          <p>Update it by telling Claude <em>"Remember that..."</em> and it will save it. Ask <em>"What do you have in memory about me?"</em> at any time to see what's been saved.</p>
+        </div>
+      </details>
+
+      <details class="ref">
+        <summary>Data and privacy</summary>
+        <div class="ref-body">
+          <p>Domo uses Claude through a Teams plan. <strong>Your conversations are private.</strong> The Teams plan provides enterprise-level privacy: conversations are not used to train Claude's models and are not shared with Anthropic beyond what is needed to run the service.</p>
+          <p>That said, use judgment. Some categories of information should stay out of any AI tool without specific confirmation of the right setup:</p>
+          <ul class="privacy-list">
+            <li>Material non-public information (un-issued financials, M&amp;A activity, earnings before filing)</li>
+            <li>Customer PII or anything covered by a customer NDA</li>
+            <li>Personally identifiable employee information</li>
+            <li>Anything where AI assistance could affect a compliance or audit finding</li>
+          </ul>
+          <div class="tip-box"><strong>Practical test:</strong> If you would hesitate before pasting something into an external email, apply the same pause before putting it in Claude. When in doubt, ask before you proceed.</div>
+        </div>
+      </details>
+
+      <details class="ref">
+        <summary>Building your first Skill</summary>
+        <div class="ref-body">
+          <p>The most common question when getting started: <em>what should I automate?</em></p>
+          <p>Start here: <strong>What is something you do on a daily, weekly, or monthly basis that takes some time and you do fairly regularly?</strong> That is your first Skill candidate.</p>
+          <p>Before you start building, write down:</p>
+          <ol>
+            <li>What is the task?</li>
+            <li>What do you start with? (an email, a dataset, a document, a meeting?)</li>
+            <li>What does the output look like? (a summary, a table, a draft, a set of action items?)</li>
+            <li>How often do you do it?</li>
+          </ol>
+          <p>Then share it with Claude and ask it to help you turn it into a Skill.</p>
+          <h3>Types of Skills worth building</h3>
+          <ul>
+            <li><strong>Recurring reports</strong> — something you pull and format on a schedule</li>
+            <li><strong>Inbox triage</strong> — scan flagged emails, summarize what needs attention, list action items</li>
+            <li><strong>Morning briefing</strong> — calendar, open tasks, and priorities in one focused plan</li>
+            <li><strong>Document review</strong> — check a document against a standard, flag issues, suggest edits</li>
+            <li><strong>Data pulls and analysis</strong> — query a dataset, filter it, summarize the key takeaways</li>
+            <li><strong>Meeting prep</strong> — pull notes, tasks, and context before a recurring meeting</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="ref">
+        <summary>Tips for working with Claude</summary>
+        <div class="ref-body">
+          <p><strong>Ask Claude how to use Claude.</strong> If you're unsure how to do something, just ask. Describe what you're trying to do and Claude will walk you through it. This is the fastest way to learn.</p>
+          <p><strong>Start with Claude Chat.</strong> Move to Cowork when you're ready to do file-based work or run Skills. Come to Claude Code when you want to build something or connect to Domo data directly.</p>
+          <p><strong>Start with context, every time.</strong> The more Claude knows about you upfront, the better every response will be. Your Custom Instructions and Memory investment pays off immediately.</p>
+          <p><strong>Be specific.</strong> Instead of <em>"summarize this,"</em> try <em>"summarize the key risks in 3 bullet points for a CFO audience."</em> Claude responds to specificity.</p>
+          <p><strong>Iterate, don't restart.</strong> Claude holds context inside a conversation. If the first output isn't right, tell it exactly what to change. You don't need to re-explain everything.</p>
+          <p><strong>When in doubt, describe what you want.</strong> You don't need to know the right syntax or command. Just describe your goal in plain language and Claude will figure out how to get there.</p>
+          <p><strong>Turn good work into a Skill.</strong> If Claude does something useful in any conversation, say <em>"Make everything we've just done into a Skill."</em> It will package the workflow into a reusable command you can trigger anytime.</p>
+          <p><strong>Use the same judgment you would with email.</strong> If you would hesitate before pasting something into an external email, apply the same pause before putting it in Claude.</p>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <section id="resources" aria-labelledby="resourcesTitle">
+    <div class="section-eyebrow">Resources</div>
+    <h2 class="section-title" id="resourcesTitle">Bookmarks worth keeping</h2>
+    <p class="section-sub">The links you'll come back to.</p>
+
+    <div class="resources stagger">
+      <a class="resource-card" href="https://claude.ai" target="_blank" rel="noopener">
+        <div class="res-name">claude.ai</div>
+        <div class="res-desc">Claude Chat and Cowork in the browser</div>
+      </a>
+      <a class="resource-card" href="https://claude.ai/download" target="_blank" rel="noopener">
+        <div class="res-name">claude.ai/download</div>
+        <div class="res-desc">Desktop app download</div>
+      </a>
+      <a class="resource-card" href="https://docs.anthropic.com" target="_blank" rel="noopener">
+        <div class="res-name">docs.anthropic.com</div>
+        <div class="res-desc">Official Claude documentation</div>
+      </a>
+      <a class="resource-card" href="https://developer.domo.com" target="_blank" rel="noopener">
+        <div class="res-name">developer.domo.com</div>
+        <div class="res-desc">Domo developer portal: API docs, dataset access</div>
+      </a>
+      <a class="resource-card" href="https://domo.domo.com/admin/developer" target="_blank" rel="noopener">
+        <div class="res-name">domo.domo.com/admin/developer</div>
+        <div class="res-desc">Where to generate your Domo developer token</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" aria-hidden="true">
+        <path fill="#FFF" d="M150.5,328.6c12.4,13.8,21.2,30.9,25,49.8,9.9-48.8,53-85.5,104.7-85.5s94.8,36.8,104.7,85.6v-85.6l106.8,106.8,107.1-106.8v85.6c9.9-48.8,53-85.6,104.7-85.6s79.2,24.8,96.4,60.7V0H0v292.9h70.8c31.7,0,60.1,13.8,79.7,35.7Z"/>
+        <path fill="#FFF" d="M703.6,506.6c-51.7,0-94.8-36.8-104.7-85.6v85.6h-36v-127.8l-71.1,71.4-71.4-71.4v127.8h-35.4v-85.6c-9.9,48.8-53,85.6-104.7,85.6s-94.8-36.7-104.7-85.5c-3.8,18.9-12.6,36-25,49.8-19.6,21.9-48,35.7-79.7,35.7H0v293.4h800v-354.2c-17.2,35.9-53.9,60.7-96.4,60.7h0Z"/>
+        <path fill="#FFF" d="M280.2,471c39.4,0,71.3-31.9,71.3-71.3s-31.9-71.3-71.3-71.3-71.3,31.9-71.3,71.3,31.9,71.3,71.3,71.3Z"/>
+        <path fill="#FFF" d="M142.1,399.7c0-37.8-29.4-68.7-66.6-71.1h-40.1v142.2h40.1c37.2-2.4,66.6-33.3,66.6-71.1h0Z"/>
+        <path fill="#FFF" d="M703.6,471c39.4,0,71.3-31.9,71.3-71.3s-31.9-71.3-71.3-71.3-71.3,31.9-71.3,71.3,31.9,71.3,71.3,71.3Z"/>
+      </svg>
+      <div class="footer-brand-text">AI at Domo<span>Internal getting-started guide</span></div>
+    </div>
+    <div class="footer-meta">
+      Have a question? Ask Claude. Or visit <a href="https://domo.domo.com" target="_blank" rel="noopener">domo.domo.com</a>.
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    'use strict';
+
+    var STORAGE_KEY = 'aiAtDomoChecklist:v1';
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; }
+      catch (e) { return {}; }
+    }
+    function saveState(state) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    var items = Array.prototype.slice.call(document.querySelectorAll('.check-item'));
+    var progressFill = document.getElementById('progressFill');
+    var progressLabel = document.getElementById('progressLabel');
+    var state = loadState();
+
+    function updateProgress() {
+      var done = items.filter(function (it) { return it.classList.contains('is-done'); }).length;
+      var total = items.length;
+      var pct = total > 0 ? (done / total) * 100 : 0;
+      progressFill.style.width = pct + '%';
+      progressLabel.textContent = done + '/' + total + ' complete';
+      progressFill.style.background = (done === total && total > 0) ? 'var(--accent-mint)' : 'var(--accent-orange)';
+    }
+
+    items.forEach(function (item) {
+      var step = item.getAttribute('data-step');
+      var head = item.querySelector('.check-head');
+      var markBtn = item.querySelector('[data-mark]');
+
+      if (state['done_' + step]) {
+        item.classList.add('is-done');
+        if (markBtn) markBtn.textContent = 'Done ✓';
+      }
+
+      function toggleOpen() {
+        var isOpen = item.classList.toggle('is-open');
+        head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+
+      head.addEventListener('click', function (e) {
+        if (e.target.closest('[data-mark]') || e.target.closest('a')) return;
+        toggleOpen();
+      });
+
+      head.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleOpen();
+        }
+      });
+
+      if (markBtn) {
+        markBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var nowDone = !item.classList.contains('is-done');
+          item.classList.toggle('is-done', nowDone);
+          state['done_' + step] = nowDone;
+          saveState(state);
+          markBtn.textContent = nowDone ? 'Done ✓' : 'Mark done';
+          updateProgress();
+        });
+      }
+    });
+
+    updateProgress();
+
+    document.querySelectorAll('[data-copy]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pre = btn.closest('.code-block').querySelector('pre');
+        var text = pre.textContent || pre.innerText;
+        var fallback = function () {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(fallback);
+        } else {
+          fallback();
+        }
+        btn.classList.add('copied');
+        btn.setAttribute('data-state', 'copied');
+        setTimeout(function () {
+          btn.classList.remove('copied');
+          btn.removeAttribute('data-state');
+        }, 1800);
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
